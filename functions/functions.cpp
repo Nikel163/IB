@@ -7,7 +7,7 @@ void GNN_startEncrypt(const char* inputFileName, const char* outputFileName, uin
     FILE* GNN_in = fopen(inputFileName, "rb");
 
     if (_access(inputFileName, F_OK) != 0) {
-        cerr << "Файл " << inputFileName << "не найден\n";
+        cerr << "File " << inputFileName << " not found\n";
         abort();
     }
 
@@ -23,25 +23,26 @@ void GNN_startEncrypt(const char* inputFileName, const char* outputFileName, uin
     uint32_t GNN_tailSize = GNN_fileSize % GNN_blockSize;
     uint32_t GNN_blocksNumber = GNN_fileSize / GNN_blockSize;
 
-    cout << "Размер файла в байтах: " << GNN_fileSize << endl;
-    cout << "Размер остаточного блока в байтах: " << GNN_tailSize << endl;
-    cout << "Количество блоков: " << GNN_blocksNumber << endl;
+    cout << "File size: " << GNN_fileSize << " bytes" << endl;
+    cout << "Last block size: " << GNN_tailSize << " bytes" << endl;
+    cout << "Blocks number: " << GNN_blocksNumber << endl;
 
     while (GNN_blocksNumber--) {
-        // блок данных для шифровки
+        // read block for encrypt
         fread(GNN_block, GNN_blockSize, 1, GNN_in);
 
+        // ------------- start of encrypting -------------------
         GNN_teaEncrypt(GNN_initializationVector, GNN_k);
-        //XOR зашифрованного блока с накопленной гаммой
         for (int i = 0; i < 2; i++) {
             GNN_blockEncrypted[i] = GNN_block[i] ^ GNN_initializationVector[i];
         }
-
+        // ------------- end of encrypting -------------------
         fwrite(GNN_blockEncrypted, GNN_blockSize, 1, GNN_out);
     }
 
     if (GNN_tailSize > 0) {
-        fread(GNN_block, GNN_blockSize, 1, GNN_in);
+        // read last block which not divisible by 8
+        fread(GNN_block, GNN_tailSize, 1, GNN_in);
 
         GNN_teaEncrypt(GNN_initializationVector, GNN_k);
         for (int i = 0; i < 2; i++) {
@@ -50,26 +51,20 @@ void GNN_startEncrypt(const char* inputFileName, const char* outputFileName, uin
 
         fwrite(GNN_blockEncrypted, GNN_tailSize, 1, GNN_out);
     }
-
-    cout << "Шифрование прошло успешно." << endl;
-
 }
 
 void GNN_startDecrypt(const char* encryptedFileName, const char* keyFileName) {
-    // проверка на наличие файла с ключом
+    // check file with key
     if (_access(keyFileName, F_OK) != 0) {
-        cerr << "Файл " << keyFileName << "не найден\n";
+        cerr << "File " << keyFileName << " not found\n";
         abort();
     }
 
-    // считывание ключа из файла
+    // reading key from file
     uint32_t GNN_k[4];
     FILE* keyFile = fopen(keyFileName, "rb");
     fread(GNN_k, 16, 1, keyFile);
 
-    // начало дешифровки
+    // start decrypting
     GNN_startEncrypt(encryptedFileName, getRestoredFileName(encryptedFileName).c_str(), GNN_k);
-
-    cout << "Дешифрование прошло успешно." << endl;
-
 }

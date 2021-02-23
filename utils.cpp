@@ -16,9 +16,7 @@ uint32_t* generateKey() {
 
     for (int i = 0; i < 4; i++) {
         GNN_k[i] = rand() << 16 | rand();
-        std::cout << (char*)GNN_k[i];
     }
-    std::cout << std::endl;
     return GNN_k;
 }
 

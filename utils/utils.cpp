@@ -1,22 +1,25 @@
 
+#include <random>
 #include "utils.h"
 
 using namespace std;
 
-// генерация ключа шифровки
 uint32_t* generateKey() {
-    srand(time(NULL));
+    mt19937 GNN_gen;
+    GNN_gen.seed(time(0));
 
-    // 128-битный ключ, разбитый на 4 части
     auto* GNN_k = new uint32_t[4];
 
     for (int i = 0; i < 4; i++) {
-        GNN_k[i] = rand() << 16 | rand();
+        char* GNN_buf = new char[4];
+        for (int j = 0; j < 4; ++j) {
+            GNN_k[i] = GNN_gen() % 256;
+        }
+        memcpy(&GNN_k[i], GNN_buf, 4);
     }
     return GNN_k;
 }
 
-// функция для получения размера файла
 long getFileSize(FILE* in) {
     fseek(in, 0, SEEK_END);
     long size = ftell(in);
@@ -24,14 +27,12 @@ long getFileSize(FILE* in) {
     return size;
 }
 
-// запись ключа в файл
 void writeKeyToFile(uint32_t* GNN_k) {
     FILE* keyFile = fopen("key.txt", "wb");
     fwrite(GNN_k, 16, 1, keyFile);
     fclose(keyFile);
 }
 
-// получение имени зашифрованного файла
 char* getEncFileName(const char* fileName) {
     char* newFileName = strdup(fileName);
     strcat(newFileName, ".enc");
@@ -50,12 +51,11 @@ void GNN_teaEncrypt(uint32_t* GNN_block, const uint32_t* GNN_k) {
     }
 }
 
-// получение имени дешифрованного файла
 string getRestoredFileName(const char* encryptedFileName) {
     string fileName(encryptedFileName);
     string GNN_newFileName = fileName.substr(0, fileName.size() - 4);
 
-    // если файл уже существует, то в конце добавляется (<число>), т.е. file(1).txt
+    // append (<number>) if file exists, i.e. file(1).txt
     string GNN_finalFileName = GNN_newFileName;
     int GNN_i = 1;
     while (_access(GNN_finalFileName.c_str(), F_OK) == 0) {

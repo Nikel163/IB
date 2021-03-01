@@ -3,7 +3,6 @@
 
 #include "../utils/utils.h"
 
-void GNN_startEncrypt(const char* inputFileName, const char* outputFileName, uint32_t* GNN_k);
-void GNN_startDecrypt(const char* fileName, const char* keyFileName);
+void GNN_start(const char* inputFileName, const char* outputFileName, uint32_t* GNN_sessionKey, std::string password, boolean isEncrypting);
 
 #endif

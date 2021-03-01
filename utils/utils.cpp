@@ -1,5 +1,3 @@
-
-#include <random>
 #include "utils.h"
 
 using namespace std;
@@ -13,7 +11,7 @@ uint32_t* generateKey() {
     for (int i = 0; i < 4; i++) {
         char* GNN_buf = new char[4];
         for (int j = 0; j < 4; ++j) {
-            GNN_k[i] = GNN_gen() % 256;
+            GNN_buf[j] = GNN_gen() % 256;
         }
         memcpy(&GNN_k[i], GNN_buf, 4);
     }
@@ -25,12 +23,6 @@ long getFileSize(FILE* in) {
     long size = ftell(in);
     rewind(in);
     return size;
-}
-
-void writeKeyToFile(uint32_t* GNN_k) {
-    FILE* keyFile = fopen("key.txt", "wb");
-    fwrite(GNN_k, 16, 1, keyFile);
-    fclose(keyFile);
 }
 
 char* getEncFileName(const char* fileName) {
@@ -65,4 +57,30 @@ string getRestoredFileName(const char* encryptedFileName) {
     }
 
     return GNN_finalFileName;
+}
+
+void setHiddenInput(bool enable) {
+#ifdef WIN32
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD mode;
+    GetConsoleMode(hStdin, &mode);
+
+    if (enable) {
+        mode &= ~ENABLE_ECHO_INPUT;
+    } else {
+        mode |= ENABLE_ECHO_INPUT;
+    }
+
+    SetConsoleMode(hStdin, mode);
+#else
+    struct termios tty;
+    tcgetattr(STDIN_FILENO, &tty);
+    if (enable) {
+        tty.c_lflag &= ~ECHO;
+    } else {
+        tty.c_lflag |= ~ECHO;
+    }
+
+    (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+#endif
 }

@@ -13,7 +13,7 @@ uint32_t* generateKey() {
     for (int i = 0; i < 4; i++) {
         char* GNN_buf = new char[4];
         for (int j = 0; j < 4; ++j) {
-            GNN_k[i] = GNN_gen() % 256;
+            GNN_buf[j] = GNN_gen() % 256;
         }
         memcpy(&GNN_k[i], GNN_buf, 4);
     }

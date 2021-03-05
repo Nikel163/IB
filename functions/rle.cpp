@@ -52,7 +52,6 @@ void compressFile(const char* inputFileName) {
                 memset(&GNN_chain, 0, 128);
                 GNN_currentChainSize = 0;
             }
-
         } else {
             // if read 3 repeated symbols
             if (GNN_currentChainSize >= 2 && GNN_c == GNN_chain[GNN_currentChainSize - 1] && GNN_c == GNN_chain[GNN_currentChainSize - 2]) {
@@ -111,40 +110,40 @@ void decompressFile(const char* inputFileName) {
     // get restored file name without '.arh', if this file exist, than add (1) before extension
     string decompressedFileName = getRestoredFileName(inputFileName);
 
-    FILE* input = fopen(inputFileName, "rb");
-    FILE* output = fopen(decompressedFileName.c_str(), "wb");
+    FILE* GNN_input = fopen(inputFileName, "rb");
+    FILE* GNN_output = fopen(decompressedFileName.c_str(), "wb");
 
     cout << "Created file " << decompressedFileName << endl;
 
-    signed char chain[128];
-    signed char chainSize = getc(input);
+    signed char GNN_chain[128];
+    signed char chainSize = getc(GNN_input);
     signed char repeatedSymbol;
 
     // in case of empty file
     if (chainSize == EOF) {
-        fputc(chainSize, output);
-        fclose(input);
-        fclose(output);
+        fputc(chainSize, GNN_output);
+        fclose(GNN_input);
+        fclose(GNN_output);
         return;
     }
 
-    while (!feof(input)) {
-        // restore repeated chain
+    while (!feof(GNN_input)) {
+        // restore repeated GNN_chain
         if (chainSize > 0) {
-            repeatedSymbol = getc(input);
+            repeatedSymbol = getc(GNN_input);
             for (int i = 0; i < chainSize; i++) {
-                fputc(repeatedSymbol, output);
+                fputc(repeatedSymbol, GNN_output);
             }
         } else {
-            // restore unrepeated chain
-            fread(chain, sizeof(signed char) * (-chainSize), 1, input);
-            fwrite(chain, sizeof(signed char) * (-chainSize), 1, output);
+            // restore unrepeated GNN_chain
+            fread(GNN_chain, sizeof(signed char) * (-chainSize), 1, GNN_input);
+            fwrite(GNN_chain, sizeof(signed char) * (-chainSize), 1, GNN_output);
         }
-        chainSize = getc(input);
+        chainSize = getc(GNN_input);
     }
 
-    fclose(input);
-    fclose(output);
+    fclose(GNN_input);
+    fclose(GNN_output);
 
     cout << "Decompress successfully complete\n";
 }

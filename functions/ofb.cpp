@@ -1,9 +1,9 @@
-#include "functions.h"
+#include "ofb.h"
 #include "../utils/md5.hpp"
 
 using namespace std;
 
-void GNN_start(const char* inputFileName, const char* outputFileName, uint32_t* GNN_sessionKey, string password, boolean isEncrypting) {
+void GNN_startOFB(const char* inputFileName, const char* outputFileName, uint32_t* GNN_sessionKey, string password, boolean isEncrypting) {
     if (_access(inputFileName, F_OK) != 0) {
         cerr << "File " << inputFileName << " not found\n";
         abort();

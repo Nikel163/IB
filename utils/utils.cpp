@@ -43,8 +43,8 @@ void GNN_teaEncrypt(uint32_t* GNN_block, const uint32_t* GNN_k) {
     }
 }
 
-string getRestoredFileName(const char* encryptedFileName) {
-    string fileName(encryptedFileName);
+string getRestoredFileName(const char* oldFileName) {
+    string fileName(oldFileName);
     string GNN_newFileName = fileName.substr(0, fileName.size() - 4);
 
     // append (<number>) if file exists, i.e. file(1).txt

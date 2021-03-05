@@ -18,9 +18,9 @@ uint32_t* generateKey() {
     return GNN_k;
 }
 
-long getFileSize(FILE* in) {
+size_t getFileSize(FILE* in) {
     fseek(in, 0, SEEK_END);
-    long size = ftell(in);
+    size_t size = ftell(in);
     rewind(in);
     return size;
 }

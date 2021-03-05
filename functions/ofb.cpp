@@ -18,12 +18,12 @@ void GNN_startOFB(const char* inputFileName, const char* outputFileName, uint32_
 
     uint32_t GNN_blockSize = sizeof(GNN_block);
 
-    long GNN_fileSize = isEncrypting ? getFileSize(GNN_in) : getFileSize(GNN_in) - 16;
-    uint32_t GNN_tailSize = GNN_fileSize % GNN_blockSize;
-    uint32_t GNN_blocksNumber = GNN_fileSize / GNN_blockSize;
+    size_t GNN_fileSize = isEncrypting ? getFileSize(GNN_in) : getFileSize(GNN_in) - 16;
+    size_t GNN_tailSize = GNN_fileSize % GNN_blockSize;
+    size_t GNN_blocksNumber = GNN_fileSize / GNN_blockSize;
 
-    cout << "File size: " << GNN_fileSize << " bytes" << endl;
-    cout << "Last block size: " << GNN_tailSize << " bytes" << endl;
+    cout << "File size: " << GNN_fileSize << " bytes\n";
+    cout << "Last block size: " << GNN_tailSize << " bytes\n";
     cout << "Blocks number: " << GNN_blocksNumber << endl;
 
     auto hash = md5(password);

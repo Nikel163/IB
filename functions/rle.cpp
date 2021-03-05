@@ -8,99 +8,98 @@ void compressFile(const char* inputFileName) {
         abort();
     }
 
-    string outputFileName(inputFileName);
-    outputFileName.append(".arh");
+    string GNN_outputFileName(inputFileName);
+    GNN_outputFileName.append(".arh");
 
-    FILE* input = fopen(inputFileName, "rb");
-    FILE* output = fopen(outputFileName.c_str(), "wb");
+    FILE* GNN_input = fopen(inputFileName, "rb");
+    FILE* GNN_output = fopen(GNN_outputFileName.c_str(), "wb");
 
-    cout << "Created file " << outputFileName << endl;
+    cout << "Created file " << GNN_outputFileName << endl;
 
-    signed char c = getc(input);
+    signed char GNN_c = getc(GNN_input);
 
     // in case empty file
-    if (feof(input)) {
-        fputc(c, output);
-        fclose(input);
-        fclose(output);
+    if (feof(GNN_input)) {
+        fputc(GNN_c, GNN_output);
+        fclose(GNN_input);
+        fclose(GNN_output);
         return;
     }
 
     // buffer for chain
-    signed char chain[128];
-    int currentChainSize = 0;
+    signed char GNN_chain[128];
+    int GNN_currentChainSize = 0;
 
     // remember first symbol
-    chain[currentChainSize] = c;
+    GNN_chain[GNN_currentChainSize] = GNN_c;
 
     // flag for different logic
     bool repeated = false;
 
-    while (c != EOF) {
+    while (GNN_c != EOF) {
         // if reading same symbols
         if (repeated) {
             // if get another symbol
-            if (currentChainSize >= 2 && c != chain[currentChainSize - 1]) {
+            if (GNN_currentChainSize >= 2 && GNN_c != GNN_chain[GNN_currentChainSize - 1]) {
                 // inverse flag
                 repeated = false;
 
-                // write repeated chain
-                fputc(currentChainSize, output);
-                fputc(chain[0], output);
+                // write repeated GNN_chain
+                fputc(GNN_currentChainSize, GNN_output);
+                fputc(GNN_chain[0], GNN_output);
 
                 // refresh buffer
-                memset(&chain, 0, 128);
-                currentChainSize = 0;
+                memset(&GNN_chain, 0, 128);
+                GNN_currentChainSize = 0;
             }
 
         } else {
             // if read 3 repeated symbols
-            if (currentChainSize >= 2 && c == chain[currentChainSize - 1] && c == chain[currentChainSize - 2]) {
+            if (GNN_currentChainSize >= 2 && GNN_c == GNN_chain[GNN_currentChainSize - 1] && GNN_c == GNN_chain[GNN_currentChainSize - 2]) {
                 repeated = true;
 
-                // write current unrepeated chain if exist
-                if (currentChainSize >= 3) {
-                    int chainSizeWithoutRepeats = currentChainSize - 2;
-                    fputc(-chainSizeWithoutRepeats, output);
-                    fwrite(chain, sizeof(signed char) * chainSizeWithoutRepeats, 1, output);
+                // write current unrepeated GNN_chain if it exists
+                if (GNN_currentChainSize >= 3) {
+                    int chainSizeWithoutRepeats = GNN_currentChainSize - 2;
+                    fputc(-chainSizeWithoutRepeats, GNN_output);
+                    fwrite(GNN_chain, sizeof(signed char) * chainSizeWithoutRepeats, 1, GNN_output);
 
                     // refresh buffer
-                    memset(&chain, 0, 128);
+                    memset(&GNN_chain, 0, 128);
 
-                    // fill repeated chain with two same bytes
-                    chain[0] = c;
-                    chain[1] = c;
-                    currentChainSize = 2;
+                    // fill repeated GNN_chain with two same bytes
+                    GNN_chain[0] = GNN_c;
+                    GNN_chain[1] = GNN_c;
+                    GNN_currentChainSize = 2;
                 }
             }
         }
         // remember last symbol
-        chain[currentChainSize++] = c;
+        GNN_chain[GNN_currentChainSize++] = GNN_c;
 
         // read one more symbol
-        c = getc(input);
+        GNN_c = getc(GNN_input);
 
-        // max length 127 for repeated chain, 128 for unrepeated chain
+        // max length 127 for repeated GNN_chain, 128 for unrepeated GNN_chain
         int maxLength = repeated ? 127 : 128;
 
-        // write chain to file if it exceed max size or get end of file
-        if (currentChainSize == maxLength || c == EOF) {
-            //
+        // write GNN_chain to file if it exceed max size or get end of file
+        if (GNN_currentChainSize == maxLength || GNN_c == EOF) {
             if (repeated) {
-                fputc(currentChainSize, output);
-                fputc(chain[0], output);
+                fputc(GNN_currentChainSize, GNN_output);
+                fputc(GNN_chain[0], GNN_output);
             } else {
-                fputc(-currentChainSize, output);
-                fwrite(chain, sizeof(signed char) * currentChainSize, 1, output);
+                fputc(-GNN_currentChainSize, GNN_output);
+                fwrite(GNN_chain, sizeof(signed char) * GNN_currentChainSize, 1, GNN_output);
             }
 
-            memset(&chain, 0, 128);
-            currentChainSize = 0;
+            memset(&GNN_chain, 0, 128);
+            GNN_currentChainSize = 0;
         }
     }
-    cout << "Compress successfully complete" <<std::endl;
-    fclose(input);
-    fclose(output);
+    cout << "Compress successfully complete\n";
+    fclose(GNN_input);
+    fclose(GNN_output);
 }
 
 void decompressFile(const char* inputFileName) {
@@ -110,40 +109,42 @@ void decompressFile(const char* inputFileName) {
     }
 
     // get restored file name without '.arh', if this file exist, than add (1) before extension
-    string decompressedFileName = getRestoredFileName(inputFileName);
+    string GNN_decompressedFileName = getRestoredFileName(inputFileName);
 
-    FILE* input = fopen(inputFileName, "rb");
-    FILE* output = fopen(decompressedFileName.c_str(), "wb");
+    FILE* GNN_input = fopen(inputFileName, "rb");
+    FILE* GNN_output = fopen(GNN_decompressedFileName.c_str(), "wb");
 
-    cout << "Created file " << decompressedFileName << endl;
+    cout << "Created file " << GNN_decompressedFileName << endl;
 
-    signed char chain[128];
-    signed char chainSize = getc(input);
-    signed char repeatedSymbol;
+    signed char GNN_chain[128];
+    signed char GNN_chainSize = getc(GNN_input);
+    signed char GNN_repeatedSymbol;
 
     // in case of empty file
-    if (chainSize == EOF) {
-        fputc(chainSize, output);
-        fclose(input);
-        fclose(output);
+    if (GNN_chainSize == EOF) {
+        fputc(GNN_chainSize, GNN_output);
+        fclose(GNN_input);
+        fclose(GNN_output);
         return;
     }
 
-    while (!feof(input)) {
-        // restore repeated chain
-        if (chainSize > 0) {
-            repeatedSymbol = getc(input);
-            for (int i = 0; i < chainSize; i++) {
-                fputc(repeatedSymbol, output);
+    while (!feof(GNN_input)) {
+        // restore repeated GNN_chain
+        if (GNN_chainSize > 0) {
+            GNN_repeatedSymbol = getc(GNN_input);
+            for (int i = 0; i < GNN_chainSize; i++) {
+                fputc(GNN_repeatedSymbol, GNN_output);
             }
         } else {
-            // restore unrepeated chain
-            fread(chain, sizeof(signed char) * (-chainSize), 1, input);
-            fwrite(chain, sizeof(signed char) * (-chainSize), 1, output);
+            // restore unrepeated GNN_chain
+            fread(GNN_chain, sizeof(signed char) * (-GNN_chainSize), 1, GNN_input);
+            fwrite(GNN_chain, sizeof(signed char) * (-GNN_chainSize), 1, GNN_output);
         }
-        chainSize = getc(input);
+        GNN_chainSize = getc(GNN_input);
     }
 
-    fclose(input);
-    fclose(output);
+    fclose(GNN_input);
+    fclose(GNN_output);
+
+    cout << "Decompress successfully complete\n";
 }

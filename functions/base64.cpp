@@ -3,21 +3,19 @@
 
 using namespace std;
 
-const char* encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static unsigned char encodingTable[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 
 void base64encode(const char* inputFileName, const char* outputFileName) {
-    if (_access(inputFileName, F_OK) != 0) {
-        cerr << "File " << inputFileName << " not found\n";
-        abort();
-    }
+    checkFileExist(inputFileName);
 
     FILE* GNN_input = fopen(inputFileName, "rb");
     FILE* GNN_output = fopen(outputFileName, "wb");
 
     // buffer for input data
-    char GNN_buf[3];
+    unsigned char GNN_buf[3];
     // buffer for output data
-    char GNN_result[4];
+    unsigned char GNN_result[4];
 
     size_t GNN_fileSize = getFileSize(GNN_input);
     size_t GNN_blockSize = sizeof(GNN_buf);
@@ -52,24 +50,21 @@ void base64encode(const char* inputFileName, const char* outputFileName) {
     fclose(GNN_output);
 
     cout << "File " << outputFileName << " created\n";
-    cout << "Base64 encoding successfully completed\n";
+    cout << "Base64 encoding successfully completed\n\n";
 }
 
-void base64decode(const char* inputFileName, const char* outputFileName) {
-    if (_access(inputFileName, F_OK) != 0) {
-        cerr << "File " << inputFileName << " not found\n";
-        abort();
-    }
+string base64decode(const char* inputFileName, const char* outputFileName) {
+    checkFileExist(inputFileName);
 
     FILE* GNN_input = fopen(inputFileName, "rb");
     FILE* GNN_output = fopen(outputFileName, "wb");
 
     // buffer for input data in base64 format
-    char GNN_base64block[4];
+    unsigned char GNN_base64block[4];
     // buffer for data in ASCII format
-    char GNN_buf[4];
+    unsigned char GNN_buf[4];
     // buffer for output data
-    char GNN_result[3];
+    unsigned char GNN_result[3];
 
     size_t GNN_fileSize = getFileSize(GNN_input);
     size_t GNN_blockSize = sizeof(GNN_base64block);
@@ -112,8 +107,10 @@ void base64decode(const char* inputFileName, const char* outputFileName) {
     }
 
     cout << "File " << outputFileName << " created\n";
-    cout << "Base64 decoding successfully completed\n";
+    cout << "Base64 decoding successfully completed\n\n";
 
     fclose(GNN_input);
     fclose(GNN_output);
+
+    return outputFileName;
 }

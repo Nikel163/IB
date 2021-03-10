@@ -3,6 +3,6 @@
 
 #include "../utils/utils.h"
 
-void GNN_startOFB(const char* inputFileName, const char* outputFileName, uint32_t* GNN_sessionKey, std::string password, boolean isEncrypting);
+std::string GNN_startOFB(const char* inputFileName, const char* outputFileName, const std::string& password, bool isEncrypting, bool withSessionKey);
 
 #endif

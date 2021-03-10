@@ -17,9 +17,16 @@
 
 uint32_t* generateKey();
 size_t getFileSize(FILE* in);
+void checkFileExist(const char* inputFileName);
+uint32_t* read16BytesFromFile(const char* inputFileName);
 char* getEncFileName(const char* fileName);
-void GNN_teaEncrypt(uint32_t* GNN_block, const uint32_t* GNN_k);
+char* getBase64FileName(const char* fileName);
 std::string getRestoredFileName(const char* oldFileName);
+std::string cutLastExtension(const std::string& fileName);
+void GNN_teaEncrypt(uint32_t* GNN_block, const uint32_t* GNN_k);
 void setHiddenInput(bool enable);
+void printHelp();
+void ask(const char* question);
+bool parseAnswer();
 
 #endif

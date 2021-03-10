@@ -3,14 +3,13 @@
 
 using namespace std;
 
-void GNN_startOFB(const char* inputFileName, const char* outputFileName, uint32_t* GNN_sessionKey, string password, boolean isEncrypting) {
-    if (_access(inputFileName, F_OK) != 0) {
-        cerr << "File " << inputFileName << " not found\n";
-        abort();
-    }
+string GNN_startOFB(const char* inputFileName, const char* outputFileName, const string& password, bool isEncrypting, bool withSessionKey) {
+    checkFileExist(inputFileName);
 
     FILE* GNN_in = fopen(inputFileName, "rb");
     FILE* GNN_out = fopen(outputFileName, "wb");
+
+    uint32_t* GNN_sessionKey;
 
     uint32_t GNN_initializationVector[2] = {0xB000BAAA, 0x14133788};
     uint32_t GNN_block[2];
@@ -18,33 +17,35 @@ void GNN_startOFB(const char* inputFileName, const char* outputFileName, uint32_
 
     uint32_t GNN_blockSize = sizeof(GNN_block);
 
-    size_t GNN_fileSize = isEncrypting ? getFileSize(GNN_in) : getFileSize(GNN_in) - 16;
+
+    size_t GNN_fileSize = !isEncrypting && withSessionKey ? getFileSize(GNN_in) - 16 : getFileSize(GNN_in);
     size_t GNN_tailSize = GNN_fileSize % GNN_blockSize;
     size_t GNN_blocksNumber = GNN_fileSize / GNN_blockSize;
 
-    cout << "File size: " << GNN_fileSize << " bytes\n";
-    cout << "Last block size: " << GNN_tailSize << " bytes\n";
-    cout << "Blocks number: " << GNN_blocksNumber << endl;
+    if (withSessionKey) {
+        auto hash = md5(password);
+        GNN_sessionKey = isEncrypting ? generateKey() : read16BytesFromFile(inputFileName);
+        for (int i = 0; i <= 2; i += 2) {
+            uint32_t block[2] = {GNN_sessionKey[i], GNN_sessionKey[i + 1]};
 
-    auto hash = md5(password);
-    for (int i = 0; i <= 2; i+=2) {
-        uint32_t block[2] = {GNN_sessionKey[i], GNN_sessionKey[i + 1]};
+            GNN_teaEncrypt(GNN_initializationVector, hash);
 
-        GNN_teaEncrypt(GNN_initializationVector, hash);
+            GNN_blockEncrypted[0] = block[0] ^ GNN_initializationVector[0];
+            GNN_blockEncrypted[1] = block[1] ^ GNN_initializationVector[1];
 
-        GNN_blockEncrypted[0] = block[0] ^ GNN_initializationVector[0];
-        GNN_blockEncrypted[1] = block[1] ^ GNN_initializationVector[1];
-
-        if (isEncrypting) {
-            fwrite(GNN_blockEncrypted, 8, 1, GNN_out);
-        } else {
-            GNN_sessionKey[i] = GNN_blockEncrypted[0];
-            GNN_sessionKey[i+1] = GNN_blockEncrypted[1];
+            if (isEncrypting) {
+                fwrite(GNN_blockEncrypted, 8, 1, GNN_out);
+            } else {
+                GNN_sessionKey[i] = GNN_blockEncrypted[0];
+                GNN_sessionKey[i + 1] = GNN_blockEncrypted[1];
+            }
         }
+    } else {
+        GNN_sessionKey = md5(password);
     }
 
     // skip session key if decrypting file
-    if (!isEncrypting) {
+    if (!isEncrypting && withSessionKey) {
         fseek(GNN_in, 16, SEEK_SET);
     }
 
@@ -74,4 +75,11 @@ void GNN_startOFB(const char* inputFileName, const char* outputFileName, uint32_
     }
     fclose(GNN_in);
     fclose(GNN_out);
+
+    string log = isEncrypting ? "Encrypting" : "Decrypting";
+
+    cout << "File " << outputFileName << " created\n";
+    cout << log << " successfully complete\n\n";
+
+    return outputFileName;
 }

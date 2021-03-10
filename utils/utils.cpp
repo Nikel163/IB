@@ -18,6 +18,24 @@ uint32_t* generateKey() {
     return GNN_k;
 }
 
+uint32_t* read16BytesFromFile(const char* inputFileName) {
+    checkFileExist(inputFileName);
+
+    auto* keyFromFile = new uint32_t[4];
+    FILE* encryptedFile = fopen(inputFileName, "rb");
+    fread(keyFromFile, 16, 1, encryptedFile);
+    fclose(encryptedFile);
+
+    return keyFromFile;
+}
+
+void checkFileExist(const char* inputFileName) {
+    if (_access(inputFileName, F_OK) != 0) {
+        cerr << "File " << inputFileName << " not found\n";
+        abort();
+    }
+}
+
 size_t getFileSize(FILE* in) {
     fseek(in, 0, SEEK_END);
     size_t size = ftell(in);
@@ -28,6 +46,12 @@ size_t getFileSize(FILE* in) {
 char* getEncFileName(const char* fileName) {
     char* newFileName = strdup(fileName);
     strcat(newFileName, ".enc");
+    return newFileName;
+}
+
+char* getBase64FileName(const char* fileName) {
+    char* newFileName = strdup(fileName);
+    strcat(newFileName, ".b64");
     return newFileName;
 }
 
@@ -59,6 +83,11 @@ string getRestoredFileName(const char* oldFileName) {
     return GNN_finalFileName;
 }
 
+string cutLastExtension(const std::string& fileName) {
+    return fileName.substr(0, fileName.size() - 4);
+};
+
+
 void setHiddenInput(bool enable) {
 #ifdef WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
@@ -83,4 +112,32 @@ void setHiddenInput(bool enable) {
 
     (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 #endif
+}
+
+void printHelp() {
+    cout << "Correct arguments: <key> <filename>, where <key> should be equal -e for encrypting"
+         << endl << "or -d for decrypting" << endl;
+}
+
+void ask(const char* question) {
+    cout << endl << question << endl;
+    cout << "1 - yes, 2 - no" << endl;
+}
+
+bool parseAnswer() {
+    cout << "Answer:";
+    int ans;
+    cin >> ans;
+    if (ans != 1 && ans != 2) {
+        while (true) {
+            cout << "Wrong answer. Type 1 or 2:";
+            cin >> ans;
+            if (ans == 1 || ans == 2) {
+                break;
+            }
+        }
+    }
+    cout << endl;
+
+    return ans == 1 ? true : false;
 }

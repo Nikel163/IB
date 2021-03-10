@@ -3,7 +3,7 @@
 
 #include "../utils/utils.h"
 
-void compressFile(const char* inputFileName);
-void decompressFile(const char* inputFileName);
+std::string compressFile(const char* inputFileName);
+std::string decompressFile(const char* inputFileName);
 
 #endif

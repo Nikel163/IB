@@ -36,7 +36,7 @@ void compressFile(const char* inputFileName) {
     // flag for different logic
     bool repeated = false;
 
-    while (GNN_c != EOF) {
+    while (!feof(GNN_input)) {
         // if reading same symbols
         if (repeated) {
             // if get another symbol
@@ -83,7 +83,7 @@ void compressFile(const char* inputFileName) {
         int maxLength = repeated ? 127 : 128;
 
         // write GNN_chain to file if it exceed max size or get end of file
-        if (GNN_currentChainSize == maxLength || GNN_c == EOF) {
+        if (GNN_currentChainSize == maxLength || feof(GNN_input)) {
             if (repeated) {
                 fputc(GNN_currentChainSize, GNN_output);
                 fputc(GNN_chain[0], GNN_output);

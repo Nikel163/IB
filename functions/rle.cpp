@@ -2,14 +2,7 @@
 
 using namespace std;
 
-string compressFile(const char* inputFileName) {
-    checkFileExist(inputFileName);
-
-    string GNN_outputFileName(inputFileName);
-    GNN_outputFileName.append(".arh");
-
-    FILE* GNN_input = fopen(inputFileName, "rb");
-    FILE* GNN_output = fopen(GNN_outputFileName.c_str(), "wb");
+void compressFile(FILE* GNN_input, FILE* GNN_output) {
 
     signed char GNN_c = getc(GNN_input);
 
@@ -18,7 +11,7 @@ string compressFile(const char* inputFileName) {
         fputc(GNN_c, GNN_output);
         fclose(GNN_input);
         fclose(GNN_output);
-        return GNN_outputFileName;
+        return;
     }
 
     // buffer for chain
@@ -90,26 +83,11 @@ string compressFile(const char* inputFileName) {
             GNN_currentChainSize = 0;
         }
     }
-    fclose(GNN_input);
-    fclose(GNN_output);
 
-    cout << "Created file " << GNN_outputFileName << endl;
     cout << "Compress successfully complete\n\n";
-
-    return GNN_outputFileName;
 }
 
-string decompressFile(const char* inputFileName) {
-    checkFileExist(inputFileName);
-
-    // get restored file name without '.arh', if this file exist, than add (1) before extension
-    string GNN_decompressedFileName = getRestoredFileName(inputFileName);
-
-    FILE* GNN_input = fopen(inputFileName, "rb");
-    FILE* GNN_output = fopen(GNN_decompressedFileName.c_str(), "wb");
-
-    cout << "Created file " << GNN_decompressedFileName << endl;
-
+void decompressFile(FILE* GNN_input, FILE* GNN_output) {
     signed char GNN_chain[128];
     signed char chainSize = getc(GNN_input);
     signed char repeatedSymbol;
@@ -119,7 +97,7 @@ string decompressFile(const char* inputFileName) {
         fputc(chainSize, GNN_output);
         fclose(GNN_input);
         fclose(GNN_output);
-        return GNN_decompressedFileName;
+        return;
     }
 
     while (!feof(GNN_input)) {
@@ -137,10 +115,5 @@ string decompressFile(const char* inputFileName) {
         chainSize = getc(GNN_input);
     }
 
-    fclose(GNN_input);
-    fclose(GNN_output);
-
     cout << "Decompress successfully complete\n\n";
-
-    return GNN_decompressedFileName;
 }

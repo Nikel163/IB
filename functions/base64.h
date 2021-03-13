@@ -3,7 +3,7 @@
 
 #include "../utils/utils.h"
 
-void base64encode(const char* inputFileName, const char* outputFileName);
-std::string base64decode(const char* inputFileName, const char* outputFileName);
+void base64encode(FILE* GNN_input, FILE* GNN_output);
+void base64decode(FILE* GNN_input, FILE* GNN_output);
 
 #endif

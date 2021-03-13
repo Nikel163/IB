@@ -6,12 +6,7 @@ using namespace std;
 static unsigned char encodingTable[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-void base64encode(const char* inputFileName, const char* outputFileName) {
-    checkFileExist(inputFileName);
-
-    FILE* GNN_input = fopen(inputFileName, "rb");
-    FILE* GNN_output = fopen(outputFileName, "wb");
-
+void base64encode(FILE* GNN_input, FILE* GNN_output) {
     // buffer for input data
     unsigned char GNN_buf[3];
     // buffer for output data
@@ -45,20 +40,10 @@ void base64encode(const char* inputFileName, const char* outputFileName) {
 
         fwrite(GNN_result, GNN_resultBlockSize, 1, GNN_output);
     }
-
-    fclose(GNN_input);
-    fclose(GNN_output);
-
-    cout << "File " << outputFileName << " created\n";
     cout << "Base64 encoding successfully completed\n\n";
 }
 
-string base64decode(const char* inputFileName, const char* outputFileName) {
-    checkFileExist(inputFileName);
-
-    FILE* GNN_input = fopen(inputFileName, "rb");
-    FILE* GNN_output = fopen(outputFileName, "wb");
-
+void base64decode(FILE* GNN_input, FILE* GNN_output) {
     // buffer for input data in base64 format
     unsigned char GNN_base64block[4];
     // buffer for data in ASCII format
@@ -106,11 +91,5 @@ string base64decode(const char* inputFileName, const char* outputFileName) {
         fwrite(GNN_result, GNN_resultBlockSize, 1, GNN_output);
     }
 
-    cout << "File " << outputFileName << " created\n";
     cout << "Base64 decoding successfully completed\n\n";
-
-    fclose(GNN_input);
-    fclose(GNN_output);
-
-    return outputFileName;
 }

@@ -3,7 +3,7 @@
 
 #include "../utils/utils.h"
 
-std::string compressFile(const char* inputFileName);
-std::string decompressFile(const char* inputFileName);
+void compressFile(FILE* GNN_input, FILE* GNN_output);
+void decompressFile(FILE* GNN_input, FILE* GNN_output);
 
 #endif

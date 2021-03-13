@@ -18,14 +18,9 @@ uint32_t* generateKey() {
     return GNN_k;
 }
 
-uint32_t* read16BytesFromFile(const char* inputFileName) {
-    checkFileExist(inputFileName);
-
+uint32_t* read16BytesFromFile(FILE* input) {
     auto* keyFromFile = new uint32_t[4];
-    FILE* encryptedFile = fopen(inputFileName, "rb");
-    fread(keyFromFile, 16, 1, encryptedFile);
-    fclose(encryptedFile);
-
+    fread(keyFromFile, 16, 1, input);
     return keyFromFile;
 }
 
@@ -67,20 +62,17 @@ void GNN_teaEncrypt(uint32_t* GNN_block, const uint32_t* GNN_k) {
     }
 }
 
-string getRestoredFileName(const char* oldFileName) {
-    string fileName(oldFileName);
-    string GNN_newFileName = fileName.substr(0, fileName.size() - 4);
-
+string getRestoredFileName(string& fileName) {
     // append (<number>) if file exists, i.e. file(1).txt
-    string GNN_finalFileName = GNN_newFileName;
+    string finalFileName = fileName;
     int GNN_i = 1;
-    while (_access(GNN_finalFileName.c_str(), F_OK) == 0) {
+    while (_access(finalFileName.c_str(), F_OK) == 0) {
         string GNN_number = string("(") + to_string(GNN_i++) + string(")");
-        GNN_finalFileName = GNN_newFileName;
-        GNN_finalFileName.insert(GNN_finalFileName.rfind('.'), GNN_number);
+        finalFileName = fileName;
+        finalFileName.insert(finalFileName.rfind('.'), GNN_number);
     }
 
-    return GNN_finalFileName;
+    return finalFileName;
 }
 
 string cutLastExtension(const std::string& fileName) {

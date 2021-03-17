@@ -28,12 +28,10 @@ void GNN_start(const char* inputFileName, const char* outputFileName, uint32_t* 
 
     auto hash = md5(password);
     for (int i = 0; i <= 2; i+=2) {
-        uint32_t block[2] = {GNN_sessionKey[i], GNN_sessionKey[i + 1]};
-
         GNN_teaEncrypt(GNN_initializationVector, hash);
 
-        GNN_blockEncrypted[0] = block[0] ^ GNN_initializationVector[0];
-        GNN_blockEncrypted[1] = block[1] ^ GNN_initializationVector[1];
+        GNN_blockEncrypted[0] = GNN_sessionKey[i] ^ GNN_initializationVector[0];
+        GNN_blockEncrypted[1] = GNN_sessionKey[i + 1] ^ GNN_initializationVector[1];
 
         if (isEncrypting) {
             fwrite(GNN_blockEncrypted, 8, 1, GNN_out);
@@ -54,9 +52,8 @@ void GNN_start(const char* inputFileName, const char* outputFileName, uint32_t* 
 
         // ------------- start of encrypting -------------------
         GNN_teaEncrypt(GNN_initializationVector, GNN_sessionKey);
-        for (int i = 0; i < 2; i++) {
-            GNN_blockEncrypted[i] = GNN_block[i] ^ GNN_initializationVector[i];
-        }
+        GNN_blockEncrypted[0] = GNN_block[0] ^ GNN_initializationVector[0];
+        GNN_blockEncrypted[1] = GNN_block[1] ^ GNN_initializationVector[1];
         // ------------- end of encrypting -------------------
         fwrite(GNN_blockEncrypted, GNN_blockSize, 1, GNN_out);
     }

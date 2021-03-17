@@ -63,9 +63,8 @@ void GNN_start(const char* inputFileName, const char* outputFileName, uint32_t* 
         fread(GNN_block, GNN_tailSize, 1, GNN_in);
 
         GNN_teaEncrypt(GNN_initializationVector, GNN_sessionKey);
-        for (int i = 0; i < 2; i++) {
-            GNN_blockEncrypted[i] = GNN_block[i] ^ GNN_initializationVector[i];
-        }
+        GNN_blockEncrypted[0] = GNN_block[0] ^ GNN_initializationVector[0];
+        GNN_blockEncrypted[1] = GNN_block[1] ^ GNN_initializationVector[1];
 
         fwrite(GNN_blockEncrypted, GNN_tailSize, 1, GNN_out);
     }

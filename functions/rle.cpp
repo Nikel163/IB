@@ -121,7 +121,7 @@ void decompressFile(const char* inputFileName) {
     signed char GNN_repeatedSymbol;
 
     // in case of empty file
-    if (GNN_chainSize == EOF) {
+    if (feof(GNN_input)) {
         fputc(GNN_chainSize, GNN_output);
         fclose(GNN_input);
         fclose(GNN_output);
